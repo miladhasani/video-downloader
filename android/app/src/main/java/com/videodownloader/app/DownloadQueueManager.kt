@@ -166,7 +166,7 @@ class DownloadQueueManager(
 
         try {
             val request = YoutubeDLRequest(item.url)
-            DownloadOptions.applyToRequest(request, getSettings())
+            DownloadOptions.applyToRequest(request, getSettings(), item.url)
 
             YoutubeDL.getInstance().execute(request, processId(item.id)) { progress, _, line ->
                 updateItem(item.id) { current ->
@@ -191,7 +191,7 @@ class DownloadQueueManager(
                 updateItem(item.id) {
                     it.copy(
                         status = QueueStatus.FAILED,
-                        errorMessage = e.localizedMessage ?: e.javaClass.simpleName,
+                        errorMessage = YtDlpErrors.sanitize(e.localizedMessage ?: e.message),
                         statusMessage = "",
                     )
                 }

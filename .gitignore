@@ -1,1 +1,50 @@
-__pycache__
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+.env
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+
+# Downloaded videos and local runtime files
+downloads/
+*.mp4
+*.mkv
+*.webm
+*.mp3
+*.m4a
+cookies.txt
+*.cookies
+
+# Android / Gradle
+android/.gradle/
+android/**/build/
+android/local.properties
+android/.idea/
+android/.cxx/
+android/captures/
+android/.externalNativeBuild/
+*.iml
+*.apk
+*.aab
+*.ap_
+*.dex
+*.hprof
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+.vscode/
+*.swp
+*~

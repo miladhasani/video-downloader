@@ -4,8 +4,13 @@ import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.videodownloader.app.databinding.ActivitySettingsBinding
+import com.yausername.youtubedl_android.YoutubeDL
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SettingsActivity : AppCompatActivity(), FolderPickerDialog.Listener {
     private lateinit var binding: ActivitySettingsBinding
@@ -23,6 +28,7 @@ class SettingsActivity : AppCompatActivity(), FolderPickerDialog.Listener {
         setupToolbar()
         setupDropdowns()
         bindSettingsToUi()
+        refreshYtdlpVersion()
         setupActions()
     }
 
@@ -92,6 +98,7 @@ class SettingsActivity : AppCompatActivity(), FolderPickerDialog.Listener {
             binding.refererInput.isEnabled = checked
         }
 
+        binding.updateYtdlpButton.setOnClickListener { updateYtdlp() }
         binding.saveSettingsButton.setOnClickListener { saveSettings() }
 
         binding.resetSettingsButton.setOnClickListener {
@@ -106,6 +113,34 @@ class SettingsActivity : AppCompatActivity(), FolderPickerDialog.Listener {
                 }
                 .setNegativeButton(android.R.string.cancel, null)
                 .show()
+        }
+    }
+
+    private fun refreshYtdlpVersion() {
+        val app = application as VideoDownloaderApp
+        binding.ytdlpVersionText.text = getString(R.string.ytdlp_version, app.ytDlpVersion())
+    }
+
+    private fun updateYtdlp() {
+        val app = application as VideoDownloaderApp
+        if (app.downloadQueue.isRunning) {
+            Toast.makeText(this, R.string.ytdlp_update_busy, Toast.LENGTH_LONG).show()
+            return
+        }
+
+        lifecycleScope.launch {
+            binding.updateYtdlpButton.isEnabled = false
+            binding.updateYtdlpButton.setText(R.string.ytdlp_updating)
+            val status = withContext(Dispatchers.IO) { app.updateYtDlp() }
+            refreshYtdlpVersion()
+            val message = when (status) {
+                YoutubeDL.UpdateStatus.DONE -> R.string.ytdlp_updated
+                YoutubeDL.UpdateStatus.ALREADY_UP_TO_DATE -> R.string.ytdlp_already_current
+                else -> R.string.ytdlp_update_failed
+            }
+            Toast.makeText(this@SettingsActivity, message, Toast.LENGTH_LONG).show()
+            binding.updateYtdlpButton.isEnabled = true
+            binding.updateYtdlpButton.setText(R.string.update_ytdlp)
         }
     }
 

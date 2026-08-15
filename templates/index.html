@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Video Downloader</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&family=Newsreader:opsz,wght@16..72,500;16..72,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <div>
+          <p class="eyebrow">Local downloader</p>
+          <h1>Video Downloader</h1>
+        </div>
+      </div>
+      <div class="topbar-status">
+        <span id="runBadge" class="badge">Idle</span>
+        <span id="countBadge" class="muted">0 in queue</span>
+      </div>
+    </header>
+
+    <section class="composer card">
+      <div class="composer-main">
+        <label class="field-label" for="urlInput">Add download links</label>
+        <textarea id="urlInput" rows="5" placeholder="Paste one URL per line. You can add several at once."></textarea>
+        <p class="hint">Links stay in the queue until you start downloads. They run one after another.</p>
+      </div>
+
+      <aside class="composer-side">
+        <label class="field-label" for="qualitySelect">Quality</label>
+        <select id="qualitySelect">
+          <option value="best">Best available</option>
+          <option value="1080">1080p</option>
+          <option value="720">720p</option>
+          <option value="480">480p</option>
+          <option value="worst">Lowest</option>
+        </select>
+
+        <label class="field-label" for="outputDir">Save folder</label>
+        <div class="folder-row">
+          <input id="outputDir" type="text" value="./downloads" spellcheck="false">
+          <button id="browseBtn" class="ghost" type="button">Browse</button>
+        </div>
+
+        <label class="check">
+          <input id="audioOnly" type="checkbox">
+          <span>Audio only (MP3)</span>
+        </label>
+
+        <details class="advanced">
+          <summary>Advanced</summary>
+          <label class="field-label" for="refererInput">Referer</label>
+          <input id="refererInput" type="text" placeholder="Optional referer URL">
+          <label class="field-label" for="cookiesInput">Cookies file</label>
+          <input id="cookiesInput" type="text" placeholder="Optional Netscape cookies path">
+        </details>
+      </aside>
+    </section>
+
+    <div class="actions">
+      <button id="addBtn" class="primary" type="button">Add to queue</button>
+      <button id="startBtn" class="accent" type="button">Start downloads</button>
+      <button id="stopBtn" class="danger" type="button" hidden>Stop</button>
+      <button id="clearFinishedBtn" class="ghost" type="button">Clear finished</button>
+      <button id="clearAllBtn" class="ghost" type="button">Clear all</button>
+    </div>
+
+    <section class="queue card">
+      <div class="queue-head">
+        <h2>Download queue</h2>
+        <p id="queueSummary" class="muted">No items yet</p>
+      </div>
+
+      <div class="grid" role="table" aria-label="Download queue">
+        <div class="grid-row grid-header" role="row">
+          <span role="columnheader">#</span>
+          <span role="columnheader">Title / URL</span>
+          <span role="columnheader">Quality</span>
+          <span role="columnheader">Status</span>
+          <span role="columnheader">Progress</span>
+          <span role="columnheader"></span>
+        </div>
+        <div id="queueBody"></div>
+      </div>
+
+      <p id="emptyState" class="empty">Add one or more links, then click <strong>Start downloads</strong> to process the queue in order.</p>
+    </section>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

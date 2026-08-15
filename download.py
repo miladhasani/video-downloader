@@ -164,8 +164,12 @@ def make_ydl_opts(
     audio_only: bool,
     cookies: str | None,
     referer: str | None,
+    progress_hooks: list | None = None,
+    quiet: bool = False,
 ) -> dict:
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    hooks = list(progress_hooks) if progress_hooks is not None else [progress_hook]
 
     opts: dict = {
         "outtmpl": str(output_dir / "%(title)s [%(id)s].%(ext)s"),
@@ -177,7 +181,10 @@ def make_ydl_opts(
         "retries": 10,
         "fragment_retries": 10,
         "concurrent_fragment_downloads": 4,
-        "progress_hooks": [progress_hook],
+        "progress_hooks": hooks,
+        "quiet": quiet,
+        "no_warnings": quiet,
+        "noprogress": quiet,
     }
 
     if cookies:
@@ -281,8 +288,18 @@ def download_video(
     audio_only: bool,
     cookies: str | None,
     referer: str | None,
+    progress_hooks: list | None = None,
+    quiet: bool = False,
 ) -> int:
-    opts = make_ydl_opts(output_dir, quality, audio_only, cookies, referer)
+    opts = make_ydl_opts(
+        output_dir,
+        quality,
+        audio_only,
+        cookies,
+        referer,
+        progress_hooks=progress_hooks,
+        quiet=quiet,
+    )
 
     try:
         with yt_dlp.YoutubeDL(opts) as ydl:

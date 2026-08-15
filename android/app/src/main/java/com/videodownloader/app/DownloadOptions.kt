@@ -22,17 +22,22 @@ object DownloadOptions {
         }
     }
 
-    fun applyToRequest(request: YoutubeDLRequest, settings: DownloadSettings) {
+    fun applyToRequest(request: YoutubeDLRequest, settings: DownloadSettings, pageUrl: String = "") {
         val outputDir = StorageHelper.ensureDirectory(settings.outputDir).absolutePath
         val outputTemplate = "$outputDir/${settings.filenameTemplate}"
 
         request.addOption("-f", formatSelector(settings))
+        request.addOption("--no-update")
         request.addOption("--merge-output-format", settings.mergeFormat)
         request.addOption("-o", outputTemplate)
         request.addOption("--continue")
         request.addOption("--retries", settings.retries.toString())
         request.addOption("--fragment-retries", settings.fragmentRetries.toString())
         request.addOption("--concurrent-fragments", settings.concurrentFragments.toString())
+        request.addOption("--user-agent", CHROME_ANDROID_UA)
+        request.addOption("--add-header", "Accept-Language:en-US,en;q=0.9")
+        // Android's bundled Python cannot load curl-cffi, so never request impersonation.
+        request.addOption("--extractor-args", "generic:impersonate=false")
 
         if (settings.noPlaylist) {
             request.addOption("--no-playlist")
@@ -49,8 +54,16 @@ object DownloadOptions {
             request.addOption("--audio-quality", "${settings.audioQuality}K")
         }
 
-        if (settings.useCustomReferer && settings.customReferer.isNotBlank()) {
-            request.addOption("--referer", settings.customReferer)
+        val referer = when {
+            settings.useCustomReferer && settings.customReferer.isNotBlank() -> settings.customReferer
+            pageUrl.isNotBlank() -> pageUrl
+            else -> null
+        }
+        if (referer != null) {
+            request.addOption("--referer", referer)
         }
     }
+
+    private const val CHROME_ANDROID_UA =
+        "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36"
 }

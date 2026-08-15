@@ -32,11 +32,32 @@ class VideoDownloaderApp : Application() {
             try {
                 YoutubeDL.getInstance().init(this@VideoDownloaderApp)
                 FFmpeg.getInstance().init(this@VideoDownloaderApp)
+                updateYtDlp()
                 isInitialized = true
-                Log.i(TAG, "yt-dlp initialized: ${YoutubeDL.getInstance().versionName(this@VideoDownloaderApp)}")
+                Log.i(TAG, "yt-dlp ready: ${ytDlpVersion()}")
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to initialize yt-dlp", e)
             }
+        }
+    }
+
+    fun ytDlpVersion(): String {
+        return YoutubeDL.getInstance().versionName(this)
+            ?: YoutubeDL.getInstance().version(this)
+            ?: "unknown"
+    }
+
+    fun updateYtDlp(): YoutubeDL.UpdateStatus? {
+        return try {
+            val status = YoutubeDL.getInstance().updateYoutubeDL(
+                this,
+                YoutubeDL.UpdateChannel.STABLE,
+            )
+            Log.i(TAG, "yt-dlp update: $status (${ytDlpVersion()})")
+            status
+        } catch (e: Exception) {
+            Log.w(TAG, "yt-dlp update failed; keeping current binary", e)
+            null
         }
     }
 
